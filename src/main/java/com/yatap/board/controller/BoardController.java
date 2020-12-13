@@ -2,48 +2,41 @@ package com.yatap.board.controller;
 
 import com.yatap.board.domain.dto.BoardDto;
 import com.yatap.board.domain.dto.ResponseDto;
+import com.yatap.board.service.BoardService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1")
+@RequiredArgsConstructor
 public class BoardController {
+    private final BoardService boardService;
 
     @GetMapping("/boards")
     public ResponseDto getBoards() {
-
-        List<Long> ids = Arrays.asList(1L, 2L, 3L, 4L, 5L);
-        List<BoardDto> boards = ids.stream()
-                .map(id -> (BoardDto.builder()
-                        .id(id)
-                        .title("title")
-                        .contents("contents")
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()))
-                .collect(Collectors.toList());
-
         return ResponseDto.builder()
-                .data(boards)
+                .data(boardService.getBoards())
                 .build();
     }
 
-    @GetMapping("/board")
-    public ResponseDto getBoard() {
-        return ResponseDto.builder().build();
+    @GetMapping("/board/{id}")
+    public ResponseDto getBoard(@PathVariable Long id) {
+        return ResponseDto.builder()
+                .data(boardService.getBoard(id))
+                .build();
     }
 
     @PostMapping("/board")
-    public ResponseDto postBoard() {
+    public ResponseDto postBoard(@ModelAttribute BoardDto boardDto) {
+        boardService.saveBoard(boardDto);
+
         return ResponseDto.builder().build();
     }
 
-    @DeleteMapping("/board")
-    public ResponseDto deleteBoard() {
+    @DeleteMapping("/board/{id}")
+    public ResponseDto deleteBoard(@PathVariable Long id) {
+        boardService.deleteBoard(id);
+
         return ResponseDto.builder().build();
     }
 }
